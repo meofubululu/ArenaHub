@@ -1,10 +1,9 @@
 package org.mefobululu.arenahub.controller;
 
+import org.mefobululu.arenahub.dto.CreatePlayerRequest;
 import org.mefobululu.arenahub.model.Player;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.mefobululu.arenahub.service.PlayerService;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class HelloController {
@@ -12,14 +11,24 @@ public class HelloController {
     public String hello(@RequestParam String name){
         return "Hello, "+name;
     }
+
     @GetMapping("/player/{id}")
-    public String playerId(@PathVariable Long id){
-        return "Player id: "+id;
-    }
-    @GetMapping("/player/demo")
-    public Player demoPlayer(){
-        Player player = new Player(1001L,"吃葡萄不吐葡萄皮",2);
+    public Player playerId(@PathVariable Long id){
+        Player player = playerService.findById(id);
         return player;
     }
 
+    @PostMapping("/players")
+    public String createPlayer(@RequestBody CreatePlayerRequest request){
+        String nickname = request.getNickname();
+        return "昵称创建成功！您的昵称为： "+nickname;
+    }
+
+
+
+    private final PlayerService playerService;
+
+    public HelloController(PlayerService playerService){
+        this.playerService = playerService;
+    }
 }
