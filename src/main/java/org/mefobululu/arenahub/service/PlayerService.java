@@ -16,4 +16,21 @@ public class PlayerService {
         Player player = playerMapper.findById(id);
         return player;
     }
+
+    public Player createPlayer(String nickname){
+        Player player = new Player(null,nickname,1);
+        int rows = playerMapper.insertPlayer(player);
+        if(rows == 1) {return player;}
+        return null;
+    }
+    public boolean updateLevel(Long id, Integer level){
+        int rows = playerMapper.updateLevel(id,level);
+        return rows == 1;
+    }
+
+    public boolean deletePlayer(Long id){
+        int rows = playerMapper.deletePlayer(id);
+        return rows == 1;
+    }
+
 }

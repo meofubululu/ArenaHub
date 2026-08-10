@@ -20,4 +20,7 @@ public class Player {
     public Integer getLevel() {
         return level;
     }
+    public void setId(Long id){
+        this.id = id;
+    }
 }
