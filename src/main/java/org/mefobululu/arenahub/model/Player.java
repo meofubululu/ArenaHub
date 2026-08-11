@@ -10,6 +10,7 @@ public class Player {
         this.nickname = nickname;
         this.level = level;
     }
+    public Player(){}
 
     public Long getId() {
         return id;
@@ -20,7 +21,14 @@ public class Player {
     public Integer getLevel() {
         return level;
     }
+
     public void setId(Long id){
         this.id = id;
+    }
+    public void setNickname(String nickname){
+        this.nickname = nickname;
+    }
+    public void setLevel(Integer level){
+        this.level = level;
     }
 }

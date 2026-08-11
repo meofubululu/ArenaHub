@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class HelloController {
+    private final PlayerService playerService;
+
+    public HelloController(PlayerService playerService){
+        this.playerService = playerService;
+    }
+
     @GetMapping("/hello")
     public String hello(@RequestParam String name){
         return "Hello, "+name;
@@ -45,9 +51,4 @@ public class HelloController {
         return "玩家删除失败";
     }
 
-    private final PlayerService playerService;
-
-    public HelloController(PlayerService playerService){
-        this.playerService = playerService;
-    }
 }
