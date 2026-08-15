@@ -3,6 +3,7 @@ package org.mefobululu.arenahub.controller;
 import org.mefobululu.arenahub.dto.AddScoreRequest;
 import org.mefobululu.arenahub.dto.LeaderboardEntry;
 import org.mefobululu.arenahub.dto.PlayerRankResponse;
+import org.mefobululu.arenahub.exception.BusinessException;
 import org.mefobululu.arenahub.service.PlayerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +35,7 @@ public class LeaderboardController {
     @GetMapping("/leaderboard/players/{id}")
     public ResponseEntity<PlayerRankResponse> getPlayerRank(
             @PathVariable Long id){
-        PlayerRankResponse response = playerService.getPlayerRankInfo(id);
-        if(response == null)
-            return ResponseEntity.notFound().build() ;
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(playerService.getPlayerRankInfo(id));
     }
+
 }

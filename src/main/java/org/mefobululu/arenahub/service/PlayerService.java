@@ -2,10 +2,15 @@ package org.mefobululu.arenahub.service;
 
 import org.mefobululu.arenahub.dto.LeaderboardEntry;
 import org.mefobululu.arenahub.dto.PlayerRankResponse;
+import org.mefobululu.arenahub.exception.BusinessException;
 import org.mefobululu.arenahub.mapper.PlayerMapper;
 import org.mefobululu.arenahub.model.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -19,6 +24,7 @@ public class PlayerService {
     private final PlayerMapper playerMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final JsonMapper jsonMapper;
+    private static final Logger log = LoggerFactory.getLogger(PlayerService.class);
 
     public PlayerService(PlayerMapper playerMapper,StringRedisTemplate stringRedisTemplate,JsonMapper jsonMapper){
         this.playerMapper = playerMapper;
@@ -28,8 +34,14 @@ public class PlayerService {
 
     public Player findById(Long id){
         String key = "player:"+id;
-        String json = stringRedisTemplate.opsForValue().get(key);
-
+        String json=null;
+        try {
+            json = stringRedisTemplate
+                    .opsForValue()
+                    .get(key);
+        }catch (RedisConnectionFailureException e){
+            log.warn("Redis查询失败，降级查询MySQL,playerId={}",id);
+        }
         if(json != null){
             return jsonMapper.readValue(json,Player.class);
         }
@@ -38,10 +50,14 @@ public class PlayerService {
             return null;
         }
         String playerJson = jsonMapper.writeValueAsString(player);
-        stringRedisTemplate.opsForValue().set(
-                key,
-                playerJson,
-                Duration.ofMinutes(5));
+        try{
+            stringRedisTemplate.opsForValue().set(
+                    key,
+                    playerJson,
+                    Duration.ofMinutes(5));
+        }catch(RedisConnectionFailureException e){
+            log.warn("Redis缓存回写失败，playerId={}",id);
+        }
         return player;
     }
 
@@ -147,7 +163,7 @@ public class PlayerService {
         Player player = findById(id);
 
         if(player == null){
-            return null;
+            throw new BusinessException(HttpStatus.NOT_FOUND,"玩家不存在");
         }
         Long rank = getPlayerRank(id);
         Double score = stringRedisTemplate
